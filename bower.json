@@ -1,0 +1,20 @@
+{
+  "name": "shy-injecter",
+  "version": "0.0.0",
+  "homepage": "https://github.com/shycherry/shy-injecter",
+  "authors": [
+    "shycherry <vinpowful@free.fr>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "latest",
+    "underscore": "latest"
+  }
+}
