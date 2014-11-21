@@ -2,7 +2,7 @@
 <script type="text/javascript" src="../underscore/underscore.js"></script>
 
 <!-- events: statusChanged (enqueued, canceled, working, dropped) -->
-<polymer-element name="shy-injecter" attributes="input params output">
+<polymer-element name="shy-injecter" attributes="input params">
   <script>
     function getDependenciesParams(iParam){
       var paramRegex = /\[(\S+?)\]/g;
@@ -122,19 +122,9 @@
 
     Polymer('shy-injecter',{
       input: "",
-      output: null,
       params: {},
-      inputChanged: function(oldValue, newValue){
-        this.output = injectParams(this.input, this.params);
-      },
-      paramsChanged: function(oldValue, newValue){
-        this.output = injectParams(this.input, this.params);
-      },
-      getInjected : function(){
-        if(!this.output){
-          this.output = injectParams(this.input, this.params);
-        }
-        return this.output;
+      getInjected: function(){        
+        return injectParams(this.input, this.params);
       }
     });  
   </script>
