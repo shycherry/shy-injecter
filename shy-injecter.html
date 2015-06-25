@@ -63,7 +63,7 @@
               return false;
             }
           }
-          this._resolved = true;          
+          this._resolved = true;
         }
         return this._resolved;
       }
@@ -72,7 +72,7 @@
         var currentParamNode = graph.getNode(paramName);
         var currentParamValue = iParams[paramName];
         var dependencies = getDependenciesParams(currentParamValue);
-        
+
         for(var dependencyIdx in dependencies){
           var currentDependencyName = dependencies[dependencyIdx];
           var currentDependencyParam = iParams[currentDependencyName];
@@ -123,9 +123,12 @@
     Polymer('shy-injecter',{
       input: "",
       params: {},
-      getInjected: function(){        
+      getInjected: function(){
         return injectParams(this.input, this.params);
+      },
+      isResolvable: function(){
+        return (this.getInjected().search("\\[(\\S+?)\\]") == -1);
       }
-    });  
+    });
   </script>
 </polymer-element>
