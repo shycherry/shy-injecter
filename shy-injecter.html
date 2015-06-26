@@ -114,6 +114,8 @@
         var paramMatch = currentMatch[1];
         var fullMatchRegex = '\\['+escapeRegex(paramMatch)+'\\]';
         var re = new RegExp(fullMatchRegex, 'g');
+        if(!iParams[paramMatch])
+          break;
         iData = iData.replace(re, iParams[paramMatch]);
         paramRegex.compile(paramRegexString);
       }
