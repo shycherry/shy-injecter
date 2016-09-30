@@ -2,63 +2,60 @@
 <script type="text/javascript" src="../underscore/underscore.js"></script>
 
 <!-- events: statusChanged (enqueued, canceled, working, dropped) -->
-<polymer-element name="shy-injecter" attributes="input params">
+<dom-module id="shy-injecter">
   <script>
-    function getDependenciesParams(iParam){
+    function getDependenciesParams(iParam) {
       var paramRegex = /\[(\S+?)\]/g;
       var currentResult = null;
       var dependencies = [];
-      while(currentResult = paramRegex.exec(iParam)){
+      while (currentResult = paramRegex.exec(iParam)) {
         dependencies = dependencies.concat(currentResult[1]);
       }
       return dependencies;
     }
-
-    function getDependenciesGraph(iParams){
+    function getDependenciesGraph(iParams) {
       var graph = new Graph();
-
-      function Graph(){
+      function Graph() {
         this.nodeMap = {};
         this._visitId = 0;
       }
-      Graph.prototype.getNode = function(iName){
+      Graph.prototype.getNode = function (iName) {
         var node = this.nodeMap[iName];
-        if(!node){
+        if (!node) {
           node = this.nodeMap[iName] = new Node(iName);
         }
         return node;
-      }
-      Graph.prototype.isResolvable = function(){
-        for(var nodeIdx in this.nodeMap){
+      };
+      Graph.prototype.isResolvable = function () {
+        for (var nodeIdx in this.nodeMap) {
           this._visitId++;
           var currentNode = this.nodeMap[nodeIdx];
-          if( ! currentNode.isResolved(this._visitId)){
+          if (!currentNode.isResolved(this._visitId)) {
             return false;
           }
         }
         return true;
-      }
-
-      function Node(iName){
+      };
+      function Node(iName) {
         this.name = iName;
         this._resolved = false;
       }
-      Node.prototype.addDependency = function(iNode){
-        if(!this.dependencies)
+      Node.prototype.addDependency = function (iNode) {
+        if (!this.dependencies)
           this.dependencies = [];
         this.dependencies = _.union(this.dependencies, [iNode]);
-      }
-      Node.prototype.isResolved = function(iVisitId){
-        if(!this._resolved && (this._visitId == iVisitId)){
-          console.log(1)
+      };
+      Node.prototype.isResolved = function (iVisitId) {
+        if (!this._resolved && this._visitId == iVisitId) {
+          console.log(1);
           return false;
         }
-        if(!this._resolved){
+        if (!this._resolved) {
           this._visitId = iVisitId;
-          for(var depIdx in this.dependencies){
+          for (var depIdx in this.dependencies) {
             var currentDep = this.dependencies[depIdx];
-            if(!currentDep.isResolved(iVisitId)){
-              console.log(3)
+            if (!currentDep.isResolved(iVisitId)) {
+              console.log(3);
               this._resolved = false;
               return false;
             }
@@ -66,71 +63,76 @@
           this._resolved = true;
         }
         return this._resolved;
-      }
-
-      for(var paramName in iParams){
+      };
+      for (var paramName in iParams) {
         var currentParamNode = graph.getNode(paramName);
         var currentParamValue = iParams[paramName];
         var dependencies = getDependenciesParams(currentParamValue);
-
-        for(var dependencyIdx in dependencies){
+        for (var dependencyIdx in dependencies) {
           var currentDependencyName = dependencies[dependencyIdx];
           var currentDependencyParam = iParams[currentDependencyName];
-          if(currentDependencyParam == undefined){
+          if (currentDependencyParam == undefined) {
             return null;
           }
           var currentDependencyNode = graph.getNode(currentDependencyName);
           currentParamNode.addDependency(currentDependencyNode);
         }
-
       }
       return graph;
     }
-
     function escapeRegex(iTextRegex) {
-      return iTextRegex.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+      return iTextRegex.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
     }
-
-    function checkParams(iParams){
+    function checkParams(iParams) {
       var graph = getDependenciesGraph(iParams);
-      if(!graph){
+      if (!graph) {
         return false;
       }
       var isResolvable = graph.isResolvable();
-      if(isResolvable){
+      if (isResolvable) {
       }
       return isResolvable;
     }
-
-    function injectParams(iData, iParams){
-      if(!iParams || _.isEmpty(iParams) || !checkParams(iParams)){
+    function injectParams(iData, iParams) {
+      if (!iParams || _.isEmpty(iParams) || !checkParams(iParams)) {
         return iData;
       }
-
       var paramRegexString = '\\[(\\S+?)\\]';
       var paramRegex = new RegExp(paramRegexString, 'g');
       var currentMatch = null;
-      while (currentMatch = paramRegex.exec(iData)){
+      while (currentMatch = paramRegex.exec(iData)) {
         var paramMatch = currentMatch[1];
-        var fullMatchRegex = '\\['+escapeRegex(paramMatch)+'\\]';
+        var fullMatchRegex = '\\[' + escapeRegex(paramMatch) + '\\]';
         var re = new RegExp(fullMatchRegex, 'g');
-        if(!iParams[paramMatch])
+        if (!iParams[paramMatch])
           break;
         iData = iData.replace(re, iParams[paramMatch]);
         paramRegex.compile(paramRegexString);
       }
       return iData;
     }
-
-    Polymer('shy-injecter',{
-      input: "",
-      params: {},
-      getInjected: function(){
+    Polymer({
+      is: 'shy-injecter',
+      properties: {
+        input: {
+          type: String,
+          value: '',
+          notify: true
+        },
+        params: {
+          type: Object,
+          value: function () {
+            return {};
+          },
+          notify: true
+        }
+      },
+      getInjected: function () {
         return injectParams(this.input, this.params);
       },
-      isResolvable: function(){
-        return (this.getInjected().search("\\[(\\S+?)\\]") == -1);
+      isResolvable: function () {
+        return this.getInjected().search('\\[(\\S+?)\\]') == -1;
       }
     });
   </script>
-</polymer-element>
+</dom-module>
